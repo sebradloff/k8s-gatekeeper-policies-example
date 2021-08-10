@@ -1,0 +1,88 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  creationTimestamp: null
+  name: 02namespaceteamlabel
+spec:
+  crd:
+    spec:
+      names:
+        kind: 02NamespaceTeamLabel
+  targets:
+  - libs:
+    - |-
+      package lib.core
+
+      default is_gatekeeper = false
+
+      is_gatekeeper {
+        has_field(input, "review")
+        has_field(input.review, "object")
+      }
+
+      resource = input.review.object {
+        is_gatekeeper
+      }
+
+      resource = input {
+        not is_gatekeeper
+      }
+
+      format(msg) = {"msg": msg}
+
+      format_with_id(msg, id) = msg_fmt {
+        msg_fmt := {
+          "msg": sprintf("%s: %s", [id, msg]),
+          "details": {"policyID": id},
+        }
+      }
+
+      apiVersion = resource.apiVersion
+
+      name = resource.metadata.name
+
+      kind = resource.kind
+
+      labels = resource.metadata.labels
+
+      annotations = resource.metadata.annotations
+
+      gv := split(apiVersion, "/")
+
+      group = gv[0] {
+        contains(apiVersion, "/")
+      }
+
+      group = "core" {
+        not contains(apiVersion, "/")
+      }
+
+      version := gv[minus(count(gv), 1)]
+
+      has_field(obj, field) {
+        not object.get(obj, field, "N_DEFINED") == "N_DEFINED"
+      }
+
+      missing_field(obj, field) {
+        obj[field] == ""
+      }
+
+      missing_field(obj, field) {
+        not has_field(obj, field)
+      }
+    rego: |-
+      package namespace_team_label
+
+      import data.lib.core
+
+      policyID := "P0002"
+
+      violation[msg] {
+        resource := input.review.object
+
+        not resource.metadata.labels.team
+
+        msg := core.format_with_id(sprintf("%s: Namespace does not have a required 'team' label", [core.name]), policyID)
+      }
+    target: admission.k8s.gatekeeper.sh
+status: {}
