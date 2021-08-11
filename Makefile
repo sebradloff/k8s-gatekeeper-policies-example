@@ -7,6 +7,11 @@ OPA_IMAGE := openpolicyagent/opa:$(OPA_VERSION)
 ALPINE_GIT_VERSION := v2.30.2
 ALPINE_GIT_IMAGE := alpine/git:$(ALPINE_GIT_VERSION)
 
+CLUSTER_NAME := test-gatekeeper
+KUBECONFIG := $(HOME)/.kube/k8s-gatekeeper-policies-example
+MANIFESTS_OUTPUT_DIR := $(PWD)/gatekeeper-infra-manifests
+GATEKEEPER_NAMESPACE := gatekeeper-system
+
 .PHONY: help
 default: help
 help: ## Show this help
@@ -62,3 +67,25 @@ manifests_diff: ## run git diff check on manifests/ directory
 .PHONY: generate_all
 generate_all: opa_format_write opa_test constraints manifests docs ## used for local dev to quickly iterate on changes
 	@echo "ran generate_all"
+
+
+.PHONY: brew_install_kind
+brew_install_kind: ## brew installs kind if not present
+	brew list kind || brew install kind
+
+.PHONY: kind_cluster_setup
+kind_cluster_setup: ## creates a kind cluster
+	kind create cluster --name $(CLUSTER_NAME) --kubeconfig $(KUBECONFIG) --config=$(PWD)/scripts/kind-config.yml
+	
+.PHONY: kubectl_apply_gatekeeper_infra
+kubectl_apply_gatekeeper_infra: ## applies gatekeeper infra manifests
+	kubectl --kubeconfig $(KUBECONFIG) get namespace $(GATEKEEPER_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(GATEKEEPER_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(MANIFESTS_OUTPUT_DIR) -n $(GATEKEEPER_NAMESPACE)
+
+.PHONY: port_forward_gatekeeper_policy_manager_ui
+port_forward_gatekeeper_policy_manager_ui: ## kubectl portfoward to the gatekeeper policy manager ui
+	kubectl --kubeconfig $(KUBECONFIG) -n $(GATEKEEPER_NAMESPACE) port-forward svc/gatekeeper-policy-manager 8080:80
+
+.PHONY: update_gatekeeper_infra_manifests
+update_gatekeeper_infra_manifests: ## templates out helm chart manfiests for gatekeeper infrastructure
+	MANIFESTS_OUTPUT_DIR=$(MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh

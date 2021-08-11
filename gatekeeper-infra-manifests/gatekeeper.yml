@@ -1,0 +1,1660 @@
+---
+# Source: crds/assign-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: assign.mutations.gatekeeper.sh
+spec:
+  group: mutations.gatekeeper.sh
+  names:
+    kind: Assign
+    listKind: AssignList
+    plural: assign
+    singular: assign
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Assign is the Schema for the assign API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AssignSpec defines the desired state of Assign
+            properties:
+              applyTo:
+                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run "make" to regenerate code after modifying this file'
+                items:
+                  description: ApplyTo determines what GVKs items the mutation should apply to. Globs are not allowed.
+                  properties:
+                    groups:
+                      items:
+                        type: string
+                      type: array
+                    kinds:
+                      items:
+                        type: string
+                      type: array
+                    versions:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
+              location:
+                type: string
+              match:
+                description: Match selects objects to apply mutations to.
+                properties:
+                  excludedNamespaces:
+                    items:
+                      type: string
+                    type: array
+                  kinds:
+                    items:
+                      description: Kinds accepts a list of objects with apiGroups and kinds fields that list the groups/kinds of objects to which the mutation will apply. If multiple groups/kinds objects are specified, only one match is needed for the resource to be in scope.
+                      properties:
+                        apiGroups:
+                          description: APIGroups is the API groups the resources belong to. '*' is all groups. If '*' is present, the length of the slice must be one. Required.
+                          items:
+                            type: string
+                          type: array
+                        kinds:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    type: array
+                  labelSelector:
+                    description: A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                  namespaceSelector:
+                    description: A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                  namespaces:
+                    items:
+                      type: string
+                    type: array
+                  scope:
+                    description: ResourceScope is an enum defining the different scopes available to a custom resource
+                    type: string
+                type: object
+              parameters:
+                properties:
+                  assign:
+                    description: Assign.value holds the value to be assigned
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  assignIf:
+                    description: once https://github.com/kubernetes-sigs/controller-tools/pull/528 is merged, we can use an actual object
+                    type: object
+                  pathTests:
+                    items:
+                      description: "PathTest allows the user to customize how the mutation works if parent paths are missing. It traverses the list in order. All sub paths are tested against the provided condition, if the test fails, the mutation is not applied. All `subPath` entries must be a prefix of `location`. Any glob characters will take on the same value as was used to expand the matching glob in `location`. 
+ Available Tests: * MustExist    - the path must exist or do not mutate * MustNotExist - the path must not exist or do not mutate"
+                      properties:
+                        condition:
+                          description: Condition describes whether the path either MustExist or MustNotExist in the original object
+                          enum:
+                          - MustExist
+                          - MustNotExist
+                          type: string
+                        subPath:
+                          type: string
+                      type: object
+                    type: array
+                type: object
+            type: object
+          status:
+            description: AssignStatus defines the observed state of Assign
+            properties:
+              byPod:
+                items:
+                  description: MutatorPodStatusStatus defines the observed state of MutatorPodStatus
+                  properties:
+                    enforced:
+                      type: boolean
+                    errors:
+                      items:
+                        description: MutatorError represents a single error caught while adding a mutator to a system
+                        properties:
+                          message:
+                            type: string
+                        required:
+                        - message
+                        type: object
+                      type: array
+                    id:
+                      type: string
+                    mutatorUID:
+                      description: Storing the mutator UID allows us to detect drift, such as when a mutator has been recreated after its CRD was deleted out from under it, interrupting the watch
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                    operations:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+
+---
+# Source: crds/assignmetadata-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: assignmetadata.mutations.gatekeeper.sh
+spec:
+  group: mutations.gatekeeper.sh
+  names:
+    kind: AssignMetadata
+    listKind: AssignMetadataList
+    plural: assignmetadata
+    singular: assignmetadata
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: AssignMetadata is the Schema for the assignmetadata API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AssignMetadataSpec defines the desired state of AssignMetadata
+            properties:
+              location:
+                type: string
+              match:
+                description: Match selects objects to apply mutations to.
+                properties:
+                  excludedNamespaces:
+                    items:
+                      type: string
+                    type: array
+                  kinds:
+                    items:
+                      description: Kinds accepts a list of objects with apiGroups and kinds fields that list the groups/kinds of objects to which the mutation will apply. If multiple groups/kinds objects are specified, only one match is needed for the resource to be in scope.
+                      properties:
+                        apiGroups:
+                          description: APIGroups is the API groups the resources belong to. '*' is all groups. If '*' is present, the length of the slice must be one. Required.
+                          items:
+                            type: string
+                          type: array
+                        kinds:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    type: array
+                  labelSelector:
+                    description: A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                  namespaceSelector:
+                    description: A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                  namespaces:
+                    items:
+                      type: string
+                    type: array
+                  scope:
+                    description: ResourceScope is an enum defining the different scopes available to a custom resource
+                    type: string
+                type: object
+              parameters:
+                properties:
+                  assign:
+                    description: Assign.value holds the value to be assigned
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+            type: object
+          status:
+            description: AssignMetadataStatus defines the observed state of AssignMetadata
+            properties:
+              byPod:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run "make" to regenerate code after modifying this file'
+                items:
+                  description: MutatorPodStatusStatus defines the observed state of MutatorPodStatus
+                  properties:
+                    enforced:
+                      type: boolean
+                    errors:
+                      items:
+                        description: MutatorError represents a single error caught while adding a mutator to a system
+                        properties:
+                          message:
+                            type: string
+                        required:
+                        - message
+                        type: object
+                      type: array
+                    id:
+                      type: string
+                    mutatorUID:
+                      description: Storing the mutator UID allows us to detect drift, such as when a mutator has been recreated after its CRD was deleted out from under it, interrupting the watch
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                    operations:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+
+---
+# Source: crds/config-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: configs.config.gatekeeper.sh
+spec:
+  group: config.gatekeeper.sh
+  names:
+    kind: Config
+    listKind: ConfigList
+    plural: configs
+    singular: config
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Config is the Schema for the configs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConfigSpec defines the desired state of Config
+            properties:
+              match:
+                description: Configuration for namespace exclusion
+                items:
+                  properties:
+                    excludedNamespaces:
+                      items:
+                        type: string
+                      type: array
+                    processes:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
+              readiness:
+                description: Configuration for readiness tracker
+                properties:
+                  statsEnabled:
+                    type: boolean
+                type: object
+              sync:
+                description: Configuration for syncing k8s objects
+                properties:
+                  syncOnly:
+                    description: If non-empty, only entries on this list will be replicated into OPA
+                    items:
+                      properties:
+                        group:
+                          type: string
+                        kind:
+                          type: string
+                        version:
+                          type: string
+                      type: object
+                    type: array
+                type: object
+              validation:
+                description: Configuration for validation
+                properties:
+                  traces:
+                    description: List of requests to trace. Both "user" and "kinds" must be specified
+                    items:
+                      properties:
+                        dump:
+                          description: Also dump the state of OPA with the trace. Set to `All` to dump everything.
+                          type: string
+                        kind:
+                          description: Only trace requests of the following GroupVersionKind
+                          properties:
+                            group:
+                              type: string
+                            kind:
+                              type: string
+                            version:
+                              type: string
+                          type: object
+                        user:
+                          description: Only trace requests from the specified user
+                          type: string
+                      type: object
+                    type: array
+                type: object
+            type: object
+          status:
+            description: ConfigStatus defines the observed state of Config
+            type: object
+        type: object
+    served: true
+    storage: true
+
+---
+# Source: crds/constraintpodstatus-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: constraintpodstatuses.status.gatekeeper.sh
+spec:
+  group: status.gatekeeper.sh
+  names:
+    kind: ConstraintPodStatus
+    listKind: ConstraintPodStatusList
+    plural: constraintpodstatuses
+    singular: constraintpodstatus
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: ConstraintPodStatus is the Schema for the constraintpodstatuses API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          status:
+            description: ConstraintPodStatusStatus defines the observed state of ConstraintPodStatus
+            properties:
+              constraintUID:
+                description: Storing the constraint UID allows us to detect drift, such as when a constraint has been recreated after its CRD was deleted out from under it, interrupting the watch
+                type: string
+              enforced:
+                type: boolean
+              errors:
+                items:
+                  description: Error represents a single error caught while adding a constraint to OPA
+                  properties:
+                    code:
+                      type: string
+                    location:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                  - code
+                  - message
+                  type: object
+                type: array
+              id:
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              operations:
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+
+---
+# Source: crds/constrainttemplate-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: constrainttemplates.templates.gatekeeper.sh
+spec:
+  group: templates.gatekeeper.sh
+  names:
+    kind: ConstraintTemplate
+    listKind: ConstraintTemplateList
+    plural: constrainttemplates
+    singular: constrainttemplate
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ConstraintTemplate is the Schema for the constrainttemplates API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConstraintTemplateSpec defines the desired state of ConstraintTemplate
+            properties:
+              crd:
+                properties:
+                  spec:
+                    properties:
+                      names:
+                        properties:
+                          kind:
+                            type: string
+                          shortNames:
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      validation:
+                        properties:
+                          openAPIV3Schema:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                    type: object
+                type: object
+              targets:
+                items:
+                  properties:
+                    libs:
+                      items:
+                        type: string
+                      type: array
+                    rego:
+                      type: string
+                    target:
+                      type: string
+                  type: object
+                type: array
+            type: object
+          status:
+            description: ConstraintTemplateStatus defines the observed state of ConstraintTemplate
+            properties:
+              byPod:
+                items:
+                  description: ByPodStatus defines the observed state of ConstraintTemplate as seen by an individual controller
+                  properties:
+                    errors:
+                      items:
+                        description: CreateCRDError represents a single error caught during parsing, compiling, etc.
+                        properties:
+                          code:
+                            type: string
+                          location:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                        - code
+                        - message
+                        type: object
+                      type: array
+                    id:
+                      description: a unique identifier for the pod that wrote the status
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              created:
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: ConstraintTemplate is the Schema for the constrainttemplates API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConstraintTemplateSpec defines the desired state of ConstraintTemplate
+            properties:
+              crd:
+                properties:
+                  spec:
+                    properties:
+                      names:
+                        properties:
+                          kind:
+                            type: string
+                          shortNames:
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      validation:
+                        properties:
+                          openAPIV3Schema:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                    type: object
+                type: object
+              targets:
+                items:
+                  properties:
+                    libs:
+                      items:
+                        type: string
+                      type: array
+                    rego:
+                      type: string
+                    target:
+                      type: string
+                  type: object
+                type: array
+            type: object
+          status:
+            description: ConstraintTemplateStatus defines the observed state of ConstraintTemplate
+            properties:
+              byPod:
+                items:
+                  description: ByPodStatus defines the observed state of ConstraintTemplate as seen by an individual controller
+                  properties:
+                    errors:
+                      items:
+                        description: CreateCRDError represents a single error caught during parsing, compiling, etc.
+                        properties:
+                          code:
+                            type: string
+                          location:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                        - code
+                        - message
+                        type: object
+                      type: array
+                    id:
+                      description: a unique identifier for the pod that wrote the status
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                type: array
+              created:
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+
+---
+# Source: crds/constrainttemplatepodstatus-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: constrainttemplatepodstatuses.status.gatekeeper.sh
+spec:
+  group: status.gatekeeper.sh
+  names:
+    kind: ConstraintTemplatePodStatus
+    listKind: ConstraintTemplatePodStatusList
+    plural: constrainttemplatepodstatuses
+    singular: constrainttemplatepodstatus
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: ConstraintTemplatePodStatus is the Schema for the constrainttemplatepodstatuses API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          status:
+            description: ConstraintTemplatePodStatusStatus defines the observed state of ConstraintTemplatePodStatus
+            properties:
+              errors:
+                items:
+                  description: CreateCRDError represents a single error caught during parsing, compiling, etc.
+                  properties:
+                    code:
+                      type: string
+                    location:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                  - code
+                  - message
+                  type: object
+                type: array
+              id:
+                description: 'Important: Run "make" to regenerate code after modifying this file'
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              operations:
+                items:
+                  type: string
+                type: array
+              templateUID:
+                description: UID is a type that holds unique ID values, including UUIDs.  Because we don't ONLY use UUIDs, this is an alias to string.  Being a type captures intent and helps make sure that UIDs and names do not get conflated.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+
+---
+# Source: crds/mutatorpodstatus-customresourcedefinition.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  labels:
+    gatekeeper.sh/system: "yes"
+  name: mutatorpodstatuses.status.gatekeeper.sh
+spec:
+  group: status.gatekeeper.sh
+  names:
+    kind: MutatorPodStatus
+    listKind: MutatorPodStatusList
+    plural: mutatorpodstatuses
+    singular: mutatorpodstatus
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: MutatorPodStatus is the Schema for the mutationpodstatuses API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          status:
+            description: MutatorPodStatusStatus defines the observed state of MutatorPodStatus
+            properties:
+              enforced:
+                type: boolean
+              errors:
+                items:
+                  description: MutatorError represents a single error caught while adding a mutator to a system
+                  properties:
+                    message:
+                      type: string
+                  required:
+                  - message
+                  type: object
+                type: array
+              id:
+                type: string
+              mutatorUID:
+                description: Storing the mutator UID allows us to detect drift, such as when a mutator has been recreated after its CRD was deleted out from under it, interrupting the watch
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              operations:
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+
+---
+# Source: gatekeeper/templates/gatekeeper-critical-pods-resourcequota.yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-critical-pods
+  namespace: 'gatekeeper-system'
+spec:
+  hard:
+    pods: 100
+  scopeSelector:
+    matchExpressions:
+    - operator: In
+      scopeName: PriorityClass
+      values:
+      - system-cluster-critical
+      - system-cluster-critical
+---
+# Source: gatekeeper/templates/gatekeeper-admin-podsecuritypolicy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-admin
+spec:
+  allowPrivilegeEscalation: false
+  fsGroup:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    rule: MustRunAsNonRoot
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  volumes:
+  - configMap
+  - projected
+  - secret
+  - downwardAPI
+---
+# Source: gatekeeper/templates/gatekeeper-controller-manager-poddisruptionbudget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-controller-manager
+  namespace: 'gatekeeper-system'
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: 'gatekeeper'
+      chart: 'gatekeeper'
+      control-plane: controller-manager
+      gatekeeper.sh/operation: webhook
+      gatekeeper.sh/system: "yes"
+      heritage: 'Helm'
+      release: 'gatekeeper'
+---
+# Source: gatekeeper/templates/gatekeeper-admin-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-admin
+  namespace: 'gatekeeper-system'
+---
+# Source: gatekeeper/templates/gatekeeper-webhook-server-cert-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    {}
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-webhook-server-cert
+  namespace: 'gatekeeper-system'
+---
+# Source: gatekeeper/templates/gatekeeper-manager-role-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-manager-role
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - config.gatekeeper.sh
+  resources:
+  - configs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - config.gatekeeper.sh
+  resources:
+  - configs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - constraints.gatekeeper.sh
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mutations.gatekeeper.sh
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - policy
+  resourceNames:
+  - gatekeeper-admin
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+- apiGroups:
+  - status.gatekeeper.sh
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - templates.gatekeeper.sh
+  resources:
+  - constrainttemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - templates.gatekeeper.sh
+  resources:
+  - constrainttemplates/finalizers
+  verbs:
+  - delete
+  - get
+  - patch
+  - update
+- apiGroups:
+  - templates.gatekeeper.sh
+  resources:
+  - constrainttemplates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - gatekeeper-validating-webhook-configuration
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - gatekeeper-mutating-webhook-configuration
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+# Source: gatekeeper/templates/gatekeeper-manager-rolebinding-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gatekeeper-manager-role
+subjects:
+- kind: ServiceAccount
+  name: gatekeeper-admin
+  namespace: 'gatekeeper-system'
+---
+# Source: gatekeeper/templates/gatekeeper-manager-role-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-manager-role
+  namespace: 'gatekeeper-system'
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+# Source: gatekeeper/templates/gatekeeper-manager-rolebinding-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-manager-rolebinding
+  namespace: 'gatekeeper-system'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gatekeeper-manager-role
+subjects:
+- kind: ServiceAccount
+  name: gatekeeper-admin
+  namespace: 'gatekeeper-system'
+---
+# Source: gatekeeper/templates/gatekeeper-webhook-service-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-webhook-service
+  namespace: 'gatekeeper-system'
+spec:
+  ports:
+  - port: 443
+    targetPort: 8443
+  selector:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    control-plane: controller-manager
+    gatekeeper.sh/operation: webhook
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+---
+# Source: gatekeeper/templates/gatekeeper-audit-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    control-plane: audit-controller
+    gatekeeper.sh/operation: audit
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-audit
+  namespace: 'gatekeeper-system'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: 'gatekeeper'
+      chart: 'gatekeeper'
+      control-plane: audit-controller
+      gatekeeper.sh/operation: audit
+      gatekeeper.sh/system: "yes"
+      heritage: 'Helm'
+      release: 'gatekeeper'
+  template:
+    metadata:
+      annotations:
+        container.seccomp.security.alpha.kubernetes.io/manager: runtime/default
+      labels:
+        app: 'gatekeeper'
+        chart: 'gatekeeper'
+        control-plane: audit-controller
+        gatekeeper.sh/operation: audit
+        gatekeeper.sh/system: "yes"
+        heritage: 'Helm'
+        release: 'gatekeeper'
+    spec:
+      affinity:
+        {}
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --audit-interval=10
+        - --log-level=INFO
+        - --constraint-violations-limit=20
+        - --audit-from-cache=false
+        - --audit-chunk-size=0
+        - --audit-match-kind-only=false
+        - --emit-audit-events=false
+        - --operation=audit
+        - --operation=status
+        - --logtostderr
+        command:
+        - /manager
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: 'openpolicyagent/gatekeeper:v3.5.2'
+        imagePullPolicy: 'IfNotPresent'
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 9090
+        name: manager
+        ports:
+        - containerPort: 8888
+          name: metrics
+          protocol: TCP
+        - containerPort: 9090
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 9090
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          readOnlyRootFilesystem: true
+          runAsGroup: 999
+          runAsNonRoot: true
+          runAsUser: 1000
+      hostNetwork: false
+      imagePullSecrets:
+        []
+      nodeSelector:
+        kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
+      serviceAccountName: gatekeeper-admin
+      terminationGracePeriodSeconds: 60
+      tolerations:
+        []
+---
+# Source: gatekeeper/templates/gatekeeper-controller-manager-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    control-plane: controller-manager
+    gatekeeper.sh/operation: webhook
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-controller-manager
+  namespace: 'gatekeeper-system'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: 'gatekeeper'
+      chart: 'gatekeeper'
+      control-plane: controller-manager
+      gatekeeper.sh/operation: webhook
+      gatekeeper.sh/system: "yes"
+      heritage: 'Helm'
+      release: 'gatekeeper'
+  template:
+    metadata:
+      annotations:
+        container.seccomp.security.alpha.kubernetes.io/manager: runtime/default
+      labels:
+        app: 'gatekeeper'
+        chart: 'gatekeeper'
+        control-plane: controller-manager
+        gatekeeper.sh/operation: webhook
+        gatekeeper.sh/system: "yes"
+        heritage: 'Helm'
+        release: 'gatekeeper'
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: gatekeeper.sh/operation
+                  operator: In
+                  values:
+                  - webhook
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --port=8443
+        - --logtostderr
+        - --log-denies=false
+        - --emit-admission-events=false
+        - --log-level=INFO
+        - --exempt-namespace=gatekeeper-system
+        - --operation=webhook
+        - --enable-mutation=false
+        command:
+        - /manager
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: 'openpolicyagent/gatekeeper:v3.5.2'
+        imagePullPolicy: 'IfNotPresent'
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 9090
+        name: manager
+        ports:
+        - containerPort: 8443
+          name: webhook-server
+          protocol: TCP
+        - containerPort: 8888
+          name: metrics
+          protocol: TCP
+        - containerPort: 9090
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 9090
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          readOnlyRootFilesystem: true
+          runAsGroup: 999
+          runAsNonRoot: true
+          runAsUser: 1000
+        volumeMounts:
+        - mountPath: /certs
+          name: cert
+          readOnly: true
+      hostNetwork: false
+      imagePullSecrets:
+        []
+      nodeSelector:
+        kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
+      serviceAccountName: gatekeeper-admin
+      terminationGracePeriodSeconds: 60
+      tolerations:
+        []
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: gatekeeper-webhook-server-cert
+---
+# Source: gatekeeper/templates/gatekeeper-validating-webhook-configuration-validatingwebhookconfiguration.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  name: gatekeeper-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: gatekeeper-webhook-service
+      namespace: 'gatekeeper-system'
+      path: /v1/admit
+  failurePolicy: Ignore
+  matchPolicy: Exact
+  name: validation.gatekeeper.sh
+  namespaceSelector:
+    matchExpressions:
+    - key: admission.gatekeeper.sh/ignore
+      operator: DoesNotExist
+  rules:
+  - apiGroups:
+    - '*'
+    apiVersions:
+    - '*'
+    operations: 
+    - CREATE
+    - UPDATE
+    resources:
+    - '*'
+  sideEffects: None
+  timeoutSeconds: 3
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: gatekeeper-webhook-service
+      namespace: 'gatekeeper-system'
+      path: /v1/admitlabel
+  failurePolicy: Fail
+  matchPolicy: Exact
+  name: check-ignore-label.gatekeeper.sh
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - '*'
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - namespaces
+  sideEffects: None
+  timeoutSeconds: 3
+---
+# Source: gatekeeper/templates/namespace-post-install.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gatekeeper-update-namespace-label
+  labels:
+    release: gatekeeper
+    heritage: Helm
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+---
+# Source: gatekeeper/templates/namespace-post-install.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gatekeeper-update-namespace-label
+  labels:
+    release: gatekeeper
+    heritage: Helm
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - update
+      - patch
+    resourceNames:
+      - gatekeeper-system
+---
+# Source: gatekeeper/templates/namespace-post-install.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gatekeeper-update-namespace-label
+  labels:
+    release: gatekeeper
+    heritage: Helm
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gatekeeper-update-namespace-label
+subjects:
+  - kind: ServiceAccount
+    name: gatekeeper-update-namespace-label
+    namespace: "gatekeeper-system"
+---
+# Source: gatekeeper/templates/namespace-post-install.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gatekeeper-update-namespace-label
+  labels:
+    app: 'gatekeeper'
+    chart: 'gatekeeper'
+    gatekeeper.sh/system: "yes"
+    heritage: 'Helm'
+    release: 'gatekeeper'
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  template:
+    metadata:
+      labels:
+        app: 'gatekeeper'
+        release: 'gatekeeper'
+    spec:
+      restartPolicy: OnFailure
+      serviceAccount: gatekeeper-update-namespace-label
+      nodeSelector:
+        kubernetes.io/os: linux
+      containers:
+        - name: kubectl-label
+          image: "line/kubectl-kustomize:1.20.4-4.0.5"
+          imagePullPolicy: IfNotPresent
+          command:
+            - kubectl
+            - label
+            - ns
+            - gatekeeper-system
+            - admission.gatekeeper.sh/ignore=no-self-managing
+            - --overwrite
