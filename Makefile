@@ -65,7 +65,7 @@ manifests_diff: ## run git diff check on manifests/ directory
 		scripts/git_diff.sh
 
 .PHONY: generate_all
-generate_all: opa_format_write opa_test constraints manifests docs ## used for local dev to quickly iterate on changes
+generate_all: opa_check opa_format_write opa_test constraints manifests docs ## used for local dev to quickly iterate on changes
 	@echo "ran generate_all"
 
 
