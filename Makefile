@@ -69,6 +69,10 @@ generate_all: opa_check opa_format_write opa_test constraints manifests docs ## 
 	@echo "ran generate_all"
 
 
+.PHONY: brew_install_kubectl
+brew_install_kubectl: ## brew installs kubectl if not present
+	brew list kubectl || brew install kubectl
+
 .PHONY: brew_install_kind
 brew_install_kind: ## brew installs kind if not present
 	brew list kind || brew install kind
