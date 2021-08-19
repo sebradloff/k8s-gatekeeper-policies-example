@@ -59,7 +59,7 @@ spec:
       serviceAccountName: gatekeeper-policy-manager
       containers:
       - name: gatekeeper-policy-manager
-        image: quay.io/sighup/gatekeeper-policy-manager
+        image: quay.io/sighup/gatekeeper-policy-manager:v0.4.2
         imagePullPolicy: Always
         resources:
           requests:
