@@ -12,7 +12,7 @@ if [ $exit_code -eq 0 ] && [ "$unchecked_files" = "" ]; then
     echo "All generated manifests checked into '${DIRECTORY}' directory."; 
 else 
     echo "Changes NOT checked in!!!"
-    # print out all files that have diffs not checed in
+    # print out all files that have diffs not checked in
     git status --porcelain "${DIRECTORY}"
     exit 1
 fi
