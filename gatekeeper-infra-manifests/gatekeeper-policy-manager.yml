@@ -1,99 +1,168 @@
-# Copyright (c) 2020 SIGHUP s.r.l All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
+---
+# Source: gatekeeper-policy-manager/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: gatekeeper-policy-manager
-
+  labels:
+    helm.sh/chart: gatekeeper-policy-manager-0.1.0
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+    app.kubernetes.io/version: "v0.5.0"
+    app.kubernetes.io/managed-by: Helm
 ---
-
+# Source: gatekeeper-policy-manager/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gatekeeper-policy-manager
+  labels:
+    helm.sh/chart: gatekeeper-policy-manager-0.1.0
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+    app.kubernetes.io/version: "v0.5.0"
+    app.kubernetes.io/managed-by: Helm
+stringData:
+  secretKey: "test"
+---
+# Source: gatekeeper-policy-manager/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: gatekeeper-policy-manager-crd-view
+  labels:
+    app: gatekeeper-policy-manager
+    chart: gatekeeper-policy-manager-0.1.0
+    release: gatekeeper-policy-manager
+    heritage: Helm
 rules:
-- apiGroups: ["constraints.gatekeeper.sh"]
-  resources: ["*"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["templates.gatekeeper.sh"]
-  resources: ["*"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["config.gatekeeper.sh"]
-  resources: ["*"]
-  verbs: ["get", "list", "watch"]
-
+  - apiGroups: ["constraints.gatekeeper.sh"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["templates.gatekeeper.sh"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["config.gatekeeper.sh"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
 ---
-
+# Source: gatekeeper-policy-manager/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: gatekeeper-policy-manager-crd-view
+  labels:
+    app: gatekeeper-policy-manager
+    chart: gatekeeper-policy-manager-0.1.0
+    release: gatekeeper-policy-manager
+    heritage: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: gatekeeper-policy-manager-crd-view
 subjects:
-- kind: ServiceAccount
-  name: gatekeeper-policy-manager
-  namespace: gatekeeper-system
+  - name: gatekeeper-policy-manager
+    namespace: "gatekeeper-system"
+    kind: ServiceAccount
 ---
-# Copyright (c) 2020 SIGHUP s.r.l All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gatekeeper-policy-manager
-spec:
-  selector:
-    matchLabels:
-      app: gatekeeper-policy-manager
-  template:
-    metadata:
-      labels:
-        app: gatekeeper-policy-manager
-    spec:
-      serviceAccountName: gatekeeper-policy-manager
-      containers:
-      - name: gatekeeper-policy-manager
-        image: quay.io/sighup/gatekeeper-policy-manager:v0.4.2
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-        readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-        ports:
-        - containerPort: 8080
-          name: http
-        securityContext:
-          privileged: false
----
-# Copyright (c) 2020 SIGHUP s.r.l All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
-
+# Source: gatekeeper-policy-manager/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: gatekeeper-policy-manager
+  labels:
+    helm.sh/chart: gatekeeper-policy-manager-0.1.0
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+    app.kubernetes.io/version: "v0.5.0"
+    app.kubernetes.io/managed-by: Helm
 spec:
-  selector:
-    app: gatekeeper-policy-manager
+  type: ClusterIP
   ports:
-  - port: 80
-    targetPort: http
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+---
+# Source: gatekeeper-policy-manager/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekeeper-policy-manager
+  labels:
+    helm.sh/chart: gatekeeper-policy-manager-0.1.0
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+    app.kubernetes.io/version: "v0.5.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gatekeeper-policy-manager
+      app.kubernetes.io/instance: gatekeeper-policy-manager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gatekeeper-policy-manager
+        app.kubernetes.io/instance: gatekeeper-policy-manager
+    spec:
+      serviceAccountName: gatekeeper-policy-manager
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: gatekeeper-policy-manager
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+          image: "quay.io/sighup/gatekeeper-policy-manager:v0.5.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          env:
+            - name: GPM_LOG_LEVEL
+              value: "INFO"
+            - name: GPM_PREFERRED_URL_SCHEME
+              value: "http"
+            - name: GPM_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gatekeeper-policy-manager
+                  key: secretKey
+          resources:
+            null
+---
+# Source: gatekeeper-policy-manager/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "gatekeeper-policy-manager-test-connection"
+  labels:
+    helm.sh/chart: gatekeeper-policy-manager-0.1.0
+    app.kubernetes.io/name: gatekeeper-policy-manager
+    app.kubernetes.io/instance: gatekeeper-policy-manager
+    app.kubernetes.io/version: "v0.5.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['gatekeeper-policy-manager:80']
+  restartPolicy: Never
