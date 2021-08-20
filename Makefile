@@ -93,3 +93,7 @@ port_forward_gatekeeper_policy_manager_ui: ## kubectl portfoward to the gatekeep
 .PHONY: update_gatekeeper_infra_manifests
 update_gatekeeper_infra_manifests: ## templates out helm chart manfiests for gatekeeper infrastructure
 	MANIFESTS_OUTPUT_DIR=$(MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh
+
+.PHONY: update_github_gists
+update_github_gists: ## add gists to github for use in the medium article series
+	sh scripts/update_github_gists.sh
