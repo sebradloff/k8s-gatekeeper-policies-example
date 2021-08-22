@@ -1,7 +1,9 @@
 #!/bin/sh
 
 ## This script exists to copy all generated and hand written contraints, templates, and sync files
-## to the manifests directory
+## to the manifests directory. There are situations where we will not want to generate a constraint
+## with the konstraint cli and manually create them. Example in this issue for excludingNamespaces: 
+## https://github.com/plexsystems/konstraint/issues/106
 set -eux
 
 MANIFESTS_DIR="manifests"
