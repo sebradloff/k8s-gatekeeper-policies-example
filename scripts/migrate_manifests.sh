@@ -4,14 +4,24 @@
 ## to the manifests directory
 set -eux
 
-rm -rf manifests
-mkdir -p manifests
+MANIFESTS_DIR="manifests"
+CONSTRAINTS_DIR="${MANIFESTS_DIR}/constraint"
+TEMPLATE_DIR="${MANIFESTS_DIR}/template"
 
-for file_path in $(find * -type f -iname "constraint.yaml" -o -iname "template.yaml"); do
+rm -rf "${MANIFESTS_DIR}"
+mkdir -p "${CONSTRAINTS_DIR}"
+mkdir -p "${TEMPLATE_DIR}"
+
+for file_path in $(find * -type f -iname "constraint.yaml" -o); do
   new_file_name=$(echo "${file_path}" | sed -e 's|/|\-|g' -e 's/policies-//gI')
-  cp "${file_path}" "./manifests/${new_file_name}"
+  cp "${file_path}" "${CONSTRAINTS_DIR}/${new_file_name}"
+done
+
+for file_path in $(find * -type f -iname "template.yaml" -o); do
+  new_file_name=$(echo "${file_path}" | sed -e 's|/|\-|g' -e 's/policies-//gI')
+  cp "${file_path}" "${TEMPLATE_DIR}/${new_file_name}"
 done
 
 if [ $(find policies/ -type f -iname "sync.yaml") ]; then
-  cp $(find policies/ -type f -iname "sync.yaml")  "./manifests/sync.yaml"
+  cp $(find policies/ -type f -iname "sync.yaml")  "${MANIFESTS_DIR}/sync.yaml"
 fi
