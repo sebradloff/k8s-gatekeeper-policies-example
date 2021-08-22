@@ -9,8 +9,10 @@ ALPINE_GIT_IMAGE := alpine/git:$(ALPINE_GIT_VERSION)
 
 CLUSTER_NAME := test-gatekeeper
 KUBECONFIG := $(HOME)/.kube/k8s-gatekeeper-policies-example
-MANIFESTS_OUTPUT_DIR := $(PWD)/gatekeeper-infra-manifests
+INFRA_MANIFESTS_OUTPUT_DIR := $(PWD)/gatekeeper-infra-manifests
 GATEKEEPER_NAMESPACE := gatekeeper-system
+
+POLICY_MANIFESTS_DIR := $(PWD)/manifests
 
 .PHONY: help
 default: help
@@ -84,7 +86,13 @@ kind_cluster_setup: ## creates a kind cluster
 .PHONY: kubectl_apply_gatekeeper_infra
 kubectl_apply_gatekeeper_infra: ## applies gatekeeper infra manifests
 	kubectl --kubeconfig $(KUBECONFIG) get namespace $(GATEKEEPER_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(GATEKEEPER_NAMESPACE)
-	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(MANIFESTS_OUTPUT_DIR) -n $(GATEKEEPER_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(INFRA_MANIFESTS_OUTPUT_DIR) -n $(GATEKEEPER_NAMESPACE)
+
+.PHONY: kubectl_apply_policies
+kubectl_apply_policies: ## applies the generated policies
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(POLICY_MANIFESTS_DIR)/template
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(POLICY_MANIFESTS_DIR)/constraint
+	kubectl --kubeconfig $(KUBECONFIG) apply -f $(POLICY_MANIFESTS_DIR)
 
 .PHONY: port_forward_gatekeeper_policy_manager_ui
 port_forward_gatekeeper_policy_manager_ui: ## kubectl portfoward to the gatekeeper policy manager ui
@@ -92,7 +100,7 @@ port_forward_gatekeeper_policy_manager_ui: ## kubectl portfoward to the gatekeep
 
 .PHONY: update_gatekeeper_infra_manifests
 update_gatekeeper_infra_manifests: ## templates out helm chart manfiests for gatekeeper infrastructure
-	MANIFESTS_OUTPUT_DIR=$(MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh
+	INFRA_MANIFESTS_OUTPUT_DIR=$(INFRA_MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh
 
 .PHONY: update_github_gists
 update_github_gists: ## add gists to github for use in the medium article series
