@@ -34,8 +34,8 @@ docs: ## create docs
 	docker run --rm -w /src -v $(PWD):/src $(KONSTRAINT_IMAGE) \
 		doc policies/
 
-.PHONY: manifests
-manifests: ## migrate manifests from policies/ directory to manifests/
+.PHONY: migrate_manifests
+migrate_manifests: ## migrate manifests from policies/ directory to manifests/
 	docker run --rm --entrypoint sh -w /src -v $(PWD):/src $(ALPINE_GIT_IMAGE) \
 		scripts/migrate_manifests.sh
 
@@ -67,7 +67,7 @@ manifests_diff: ## run git diff check on manifests/ directory
 		scripts/git_diff.sh
 
 .PHONY: generate_all
-generate_all: opa_check opa_format_write opa_test constraints manifests docs ## used for local dev to quickly iterate on changes
+generate_all: opa_check opa_format_write opa_test constraints migrate_manifests docs ## used for local dev to quickly iterate on changes
 	@echo "ran generate_all"
 
 
