@@ -2,22 +2,22 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   creationTimestamp: null
-  name: 01namespaceteamlabel
+  name: namespaceteamlabel01
 spec:
   crd:
     spec:
       names:
-        kind: 01NamespaceTeamLabel
+        kind: NamespaceTeamLabel01
   targets:
   - rego: |-
-      package namespace_team_label
+      package namespace_team_label_01
 
-      violation[msg] {
+      violation[{"msg": msg, "details": {}}] {
         resource := input.review.object
 
         not resource.metadata.labels.team
 
-        msg := sprintf("%s: Namespace does not have a required 'team' label", [resource.name])
+        msg := sprintf("%s: Namespace does not have a required 'team' label", [resource.metadata.name])
       }
     target: admission.k8s.gatekeeper.sh
 status: {}

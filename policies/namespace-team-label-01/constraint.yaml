@@ -1,7 +1,7 @@
 apiVersion: constraints.gatekeeper.sh/v1beta1
-kind: 01NamespaceTeamLabel
+kind: NamespaceTeamLabel01
 metadata:
-  name: 01namespaceteamlabel
+  name: namespaceteamlabel01
 spec:
   match:
     kinds:

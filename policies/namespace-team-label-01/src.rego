@@ -4,12 +4,12 @@
 #
 # @enforcement deny
 # @kinds core/Namespace
-package namespace_team_label
+package namespace_team_label_01
 
-violation[msg] {
+violation[{"msg": msg, "details": {}}] {
 	resource := input.review.object
 
 	not resource.metadata.labels.team
 
-	msg := sprintf("%s: Namespace does not have a required 'team' label", [resource.name])
+	msg := sprintf("%s: Namespace does not have a required 'team' label", [resource.metadata.name])
 }
