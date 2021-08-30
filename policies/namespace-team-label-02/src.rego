@@ -10,8 +10,14 @@ import data.lib.core
 
 policyID := "P0002"
 
+default has_team_label = false
+
+has_team_label {
+	core.has_field(core.labels, "team")
+}
+
 violation[msg] {
-	not core.labels.team
+	not has_team_label
 
 	msg := core.format_with_id(sprintf("%s: Namespace does not have a required 'team' label", [core.name]), policyID)
 }
