@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: ContainerDenyWithoutResourceRequests01
+metadata:
+  name: containerdenywithoutresourcerequests01
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - ""
+      kinds:
+      - Pod
