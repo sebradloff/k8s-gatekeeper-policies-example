@@ -1,0 +1,18 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: ContainerDenyWithoutResourceRequests02
+metadata:
+  name: containerdenywithoutresourcerequests02
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - apps
+      - batch
+      - ""
+      kinds:
+      - DaemonSet
+      - Deployment
+      - StatefulSet
+      - CronJob
+      - Job
+      - Pod
