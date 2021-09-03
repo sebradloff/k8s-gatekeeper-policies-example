@@ -10,7 +10,7 @@ package container_deny_without_resource_requests_02
 import data.lib.core
 import data.lib.pods
 
-policyID := "P0003"
+policyID := "P0004"
 
 violation[msg] {
 	container := pods.containers[_]

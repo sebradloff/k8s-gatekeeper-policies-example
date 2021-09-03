@@ -5,7 +5,7 @@
 * [Namespaces must have a team label](#namespaces-must-have-a-team-label)
 * [P0002: Namespaces must have a team label](#p0002-namespaces-must-have-a-team-label)
 * [P0003: Containers must have resource requests](#p0003-containers-must-have-resource-requests)
-* [P0003: Containers must have resource requests](#p0003-containers-must-have-resource-requests)
+* [P0004: Containers must have resource requests](#p0004-containers-must-have-resource-requests)
 
 ## Namespaces must have a team label
 
@@ -119,7 +119,7 @@ container_requests_zero_cpu(container) {
 
 _source: [policies/container-deny-without-resource-requests-01](policies/container-deny-without-resource-requests-01)_
 
-## P0003: Containers must have resource requests
+## P0004: Containers must have resource requests
 
 **Severity:** Violation
 
@@ -136,7 +136,7 @@ package container_deny_without_resource_requests_02
 import data.lib.core
 import data.lib.pods
 
-policyID := "P0003"
+policyID := "P0004"
 
 violation[msg] {
   container := pods.containers[_]
