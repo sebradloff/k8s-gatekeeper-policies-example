@@ -11,6 +11,7 @@ CLUSTER_NAME := test-gatekeeper
 KUBECONFIG := $(HOME)/.kube/k8s-gatekeeper-policies-example
 INFRA_MANIFESTS_OUTPUT_DIR := $(PWD)/gatekeeper-infra-manifests
 GATEKEEPER_NAMESPACE := gatekeeper-system
+INGRESS_NGINX_NAMESPACE := ingress-nginx
 
 POLICY_MANIFESTS_DIR := $(PWD)/manifests
 
@@ -80,13 +81,21 @@ brew_install_kind: ## brew installs kind if not present
 	brew list kind || brew install kind
 
 .PHONY: kind_cluster_setup
-kind_cluster_setup: ## creates a kind cluster
+kind_cluster_setup: ## creates a kind cluster and needed namespaces
 	kind create cluster --name $(CLUSTER_NAME) --kubeconfig $(KUBECONFIG) --config=$(PWD)/scripts/kind-config.yml
-	
-.PHONY: kubectl_apply_gatekeeper_infra
-kubectl_apply_gatekeeper_infra: ## applies gatekeeper infra manifests
 	kubectl --kubeconfig $(KUBECONFIG) get namespace $(GATEKEEPER_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(GATEKEEPER_NAMESPACE)
-	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(INFRA_MANIFESTS_OUTPUT_DIR) -n $(GATEKEEPER_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) get namespace $(INGRESS_NGINX_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(INGRESS_NGINX_NAMESPACE)
+
+.PHONY: kind_cluster_teardown
+kind_cluster_teardown: ## deletes the created kind cluster
+	kind delete cluster --name $(CLUSTER_NAME)
+
+.PHONY: kubectl_apply_gatekeeper_infra
+kubectl_apply_gatekeeper_infra: ## applies gatekeeper and nginx-ingress infra manifests
+	kubectl --kubeconfig $(KUBECONFIG) get namespace $(INGRESS_NGINX_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(INGRESS_NGINX_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(INFRA_MANIFESTS_OUTPUT_DIR)/$(INGRESS_NGINX_NAMESPACE) -n $(INGRESS_NGINX_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) get namespace $(GATEKEEPER_NAMESPACE) || kubectl --kubeconfig $(KUBECONFIG) create namespace $(GATEKEEPER_NAMESPACE)
+	kubectl --kubeconfig $(KUBECONFIG) apply -R -f $(INFRA_MANIFESTS_OUTPUT_DIR)/$(GATEKEEPER_NAMESPACE) -n $(GATEKEEPER_NAMESPACE)
 
 .PHONY: kubectl_apply_policies
 kubectl_apply_policies: ## applies the generated policies
@@ -100,7 +109,7 @@ port_forward_gatekeeper_policy_manager_ui: ## kubectl portfoward to the gatekeep
 
 .PHONY: update_gatekeeper_infra_manifests
 update_gatekeeper_infra_manifests: ## templates out helm chart manfiests for gatekeeper infrastructure
-	INFRA_MANIFESTS_OUTPUT_DIR=$(INFRA_MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh
+	MANIFESTS_OUTPUT_DIR=$(INFRA_MANIFESTS_OUTPUT_DIR) sh scripts/update_gatekeeper_infra_manifests.sh
 
 .PHONY: update_github_gists
 update_github_gists: ## add gists to github for use in the medium article series
