@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: foo
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/foozles(/|$)(.*)"
+            backend:
+              service:
+                name: foo
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: bar
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/foozles/bar(/|$)(.*)" # will conflict with /api/foozles
+            backend:
+              service:
+                name: bar
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: foozles-bar
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/foozles-bar(/|$)(.*)" # should not conflict
+            backend:
+              service:
+                name: foo
+                port:
+                  number: 80
+
+                  

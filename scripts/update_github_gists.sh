@@ -21,3 +21,20 @@ for file_path in $(find policies -type f ! -path "policies/lib/*"); do
     medium_gist_url="${GIST_BASE_URL}?ts=2&file=${new_file_name}"
     echo "${medium_gist_url}"
 done
+
+EXAMPLE_K8S_RESOURCES="example-k8s-resources"
+EXAMPLE_K8S_RESOURCES_TMP_DIR="/tmp/${EXAMPLE_K8S_RESOURCES}"
+rm -rf "${EXAMPLE_K8S_RESOURCES_TMP_DIR}"
+mkdir -p "${EXAMPLE_K8S_RESOURCES_TMP_DIR}"
+
+for file_path in $(find "${EXAMPLE_K8S_RESOURCES}" -type f); do
+    new_file_name=$(echo "${file_path}" | sed -e 's|/|\-|g')
+    new_file_path="${GATEKEEPER_POLICY_MANIFESTS_TMP_DIR}/${new_file_name}"
+
+    cp "${file_path}" "${new_file_path}"
+
+    gh gist edit --add "${new_file_path}" "${GIST_ID}"
+
+    medium_gist_url="${GIST_BASE_URL}?ts=2&file=${new_file_name}"
+    echo "${medium_gist_url}"
+done
