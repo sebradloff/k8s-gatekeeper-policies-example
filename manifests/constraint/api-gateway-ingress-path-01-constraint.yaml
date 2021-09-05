@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: ApiGatewayIngressPath01
+metadata:
+  name: apigatewayingresspath01
+spec:
+  match:
+    kinds:
+    - apiGroups:
+      - networking.k8s.io
+      kinds:
+      - Ingress

@@ -1,0 +1,115 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  creationTimestamp: null
+  name: apigatewayingresspath01
+spec:
+  crd:
+    spec:
+      names:
+        kind: ApiGatewayIngressPath01
+  targets:
+  - libs:
+    - |-
+      package lib.core
+
+      default is_gatekeeper = false
+
+      is_gatekeeper {
+        has_field(input, "review")
+        has_field(input.review, "object")
+      }
+
+      resource = input.review.object {
+        is_gatekeeper
+      }
+
+      resource = input {
+        not is_gatekeeper
+      }
+
+      format(msg) = {"msg": msg}
+
+      format_with_id(msg, id) = msg_fmt {
+        msg_fmt := {
+          "msg": sprintf("%s: %s", [id, msg]),
+          "details": {"policyID": id},
+        }
+      }
+
+      apiVersion = resource.apiVersion
+
+      name = resource.metadata.name
+
+      kind = resource.kind
+
+      labels = resource.metadata.labels
+
+      annotations = resource.metadata.annotations
+
+      gv := split(apiVersion, "/")
+
+      group = gv[0] {
+        contains(apiVersion, "/")
+      }
+
+      group = "core" {
+        not contains(apiVersion, "/")
+      }
+
+      version := gv[minus(count(gv), 1)]
+
+      has_field(obj, field) {
+        not object.get(obj, field, "N_DEFINED") == "N_DEFINED"
+      }
+
+      missing_field(obj, field) {
+        obj[field] == ""
+      }
+
+      missing_field(obj, field) {
+        not has_field(obj, field)
+      }
+    rego: |-
+      package api_gateway_ingress_path_01
+
+      import data.lib.core
+
+      policyID := "P0005"
+
+      identical(obj, resource) {
+        obj.metadata.namespace == resource.metadata.namespace
+        obj.metadata.name == resource.metadata.name
+      }
+
+      paths_conflict(path1, path2) = result {
+        path1_sub_api := trim_prefix(path1, "/api/")
+        path2_sub_api := trim_prefix(path2, "/api/")
+
+        # split by '/' because the characted can not be interpreted by rego regex which uses re2
+        # https://github.com/google/re2/wiki/Syntax
+        path1_arr := split(path1_sub_api, "/")
+        path2_arr := split(path2_sub_api, "/")
+
+        path1_arr_rsplit := regex.split("[^\\w|-]+", path1_arr[0])
+        path2_arr_rsplit := regex.split("[^\\w|-]+", path2_arr[0])
+
+        result := path1_arr_rsplit[0] == path2_arr_rsplit[0]
+      }
+
+      violation[msg] {
+        ns := data.inventory.cluster.v1.Namespace[_].metadata.name
+        other_ing := data.inventory.namespace[ns]["networking.k8s.io/v1"].Ingress[_]
+
+        curr_ing := core.resource
+        not identical(other_ing, curr_ing)
+
+        curr_ing_path := curr_ing.spec.rules[_].http.paths[_].path
+        other_ing_path := other_ing.spec.rules[_].http.paths[_].path
+
+        paths_conflict(curr_ing_path, other_ing_path)
+
+        msg := core.format_with_id(sprintf("%s/%s: http rule with path %s conflicts with %s/%s http rule path %s", [curr_ing.metadata.namespace, curr_ing.metadata.name, curr_ing_path, other_ing.metadata.namespace, other_ing.metadata.name, other_ing_path]), policyID)
+      }
+    target: admission.k8s.gatekeeper.sh
+status: {}
